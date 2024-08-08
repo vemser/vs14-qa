@@ -13,7 +13,7 @@
 					"name": "GET",
 					"item": [
 						{
-							"name": "Listar usuarios",
+							"name": "Todos usuarios",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -29,7 +29,9 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											""
+											"pm.test(\"Status code é 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
 										],
 										"type": "text/javascript",
 										"packages": {}
@@ -52,13 +54,28 @@
 							"response": []
 						},
 						{
-							"name": "Listar usuarios por nome",
+							"name": "Usuarios por nome",
 							"event": [
 								{
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											""
+											"const cadastrarUsuario = {\r",
+											"    url: pm.environment.get(\"base_url\") + \"/usuarios\",\r",
+											"    method: \"POST\",\r",
+											"    header: {\r",
+											"        \"content-type\": \"application/json\",\r",
+											"        \"accept\": \"application/json\"\r",
+											"    },\r",
+											"    body: {\r",
+											"        mode: \"raw\",\r",
+											"        raw: JSON.stringify(pm.environment.get(\"novoUsuario\"))\r",
+											"    }\r",
+											"};\r",
+											"pm.sendRequest(cadastrarUsuario, function(err, res) {\r",
+											"    pm.expect(err).is.null;\r",
+											"    pm.environment.set(\"_id\", res.json()._id)\r",
+											"})"
 										],
 										"type": "text/javascript",
 										"packages": {}
@@ -68,16 +85,22 @@
 									"listen": "test",
 									"script": {
 										"exec": [
+											"const lodash = require(\"lodash\");\r",
 											"const jsonData = pm.response.json();\r",
 											"\r",
 											"if (jsonData.usuarios.length > 0) {\r",
 											"    pm.test(\"Verifica nomes retornados no array\", function () {\r",
 											"\r",
-											"        _.forEach(jsonData.usuarios, function(usuario) {\r",
+											"        lodash.forEach(jsonData.usuarios, function(usuario) {\r",
 											"            pm.expect(usuario.nome).to.eql(pm.environment.get(\"nome\"));\r",
 											"        })\r",
 											"    })\r",
-											"};"
+											"};\r",
+											"\r",
+											"pm.sendRequest({\r",
+											"    url: pm.environment.get(\"base_url\") + \"/usuarios/\" + pm.environment.get(\"_id\"),\r",
+											"    method: \"DELETE\"\r",
+											"})"
 										],
 										"type": "text/javascript",
 										"packages": {}
@@ -108,7 +131,7 @@
 							"response": []
 						},
 						{
-							"name": "Buscar usuario por id",
+							"name": "Usuario por ID",
 							"event": [
 								{
 									"listen": "test",
@@ -125,7 +148,37 @@
 											"    pm.expect(jsonData.email).to.eql(pm.environment.get(\"email\"));\r",
 											"    pm.expect(jsonData.password).to.eql(pm.environment.get(\"password\"));\r",
 											"    pm.expect(jsonData.administrador).to.eql(pm.environment.get(\"administrador\"));\r",
-											"});"
+											"});\r",
+											"\r",
+											"pm.sendRequest({\r",
+											"    url: pm.environment.get(\"base_url\") + \"/usuarios/\" + pm.environment.get(\"_id\"),\r",
+											"    method: \"DELETE\"\r",
+											"})"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const cadastrarUsuario = {\r",
+											"    url: pm.environment.get(\"base_url\") + \"/usuarios\",\r",
+											"    method: \"POST\",\r",
+											"    header: {\r",
+											"        \"content-type\": \"application/json\",\r",
+											"        \"accept\": \"application/json\"\r",
+											"    },\r",
+											"    body: {\r",
+											"        mode: \"raw\",\r",
+											"        raw: JSON.stringify(pm.environment.get(\"novoUsuario\"))\r",
+											"    }\r",
+											"};\r",
+											"pm.sendRequest(cadastrarUsuario, function(err, res) {\r",
+											"    pm.expect(err).is.null;\r",
+											"    pm.environment.set(\"_id\", res.json()._id)\r",
+											"})"
 										],
 										"type": "text/javascript",
 										"packages": {}
@@ -157,7 +210,7 @@
 							"response": []
 						},
 						{
-							"name": "Tentar buscar usuario por id inexistente",
+							"name": "Usuario por ID inexistente",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -218,22 +271,7 @@
 								"type": "text/javascript",
 								"packages": {},
 								"exec": [
-									"const cadastrarUsuario = {\r",
-									"    url: pm.environment.get(\"base_url\") + \"/usuarios\",\r",
-									"    method: \"POST\",\r",
-									"    header: {\r",
-									"        \"content-type\": \"application/json\",\r",
-									"        \"accept\": \"application/json\"\r",
-									"    },\r",
-									"    body: {\r",
-									"        mode: \"raw\",\r",
-									"        raw: JSON.stringify(pm.environment.get(\"novoUsuario\"))\r",
-									"    }\r",
-									"};\r",
-									"pm.sendRequest(cadastrarUsuario, function(err, res) {\r",
-									"    pm.expect(err).is.null;\r",
-									"    pm.environment.set(\"_id\", res.json()._id)\r",
-									"})"
+									""
 								]
 							}
 						},
@@ -243,10 +281,7 @@
 								"type": "text/javascript",
 								"packages": {},
 								"exec": [
-									"pm.sendRequest({\r",
-									"    url: pm.environment.get(\"base_url\") + \"/usuarios/\" + pm.environment.get(\"_id\"),\r",
-									"    method: \"DELETE\"\r",
-									"})"
+									""
 								]
 							}
 						}
@@ -256,7 +291,7 @@
 					"name": "POST",
 					"item": [
 						{
-							"name": "Cadastrar usuario com sucesso",
+							"name": "Usuario com sucesso",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -321,7 +356,7 @@
 							"response": []
 						},
 						{
-							"name": "Tentar cadastrar usuario com email cadastrado",
+							"name": "Usuario email existente",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -402,29 +437,12 @@
 					"name": "PUT",
 					"item": [
 						{
-							"name": "Atualizar usuario com sucesso",
+							"name": "Usuario com sucesso",
 							"event": [
 								{
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const cadastrarUsuario = {\r",
-											"    url: pm.environment.get(\"base_url\") + \"/usuarios\",\r",
-											"    method: \"POST\",\r",
-											"    header: {\r",
-											"        \"content-type\": \"application/json\",\r",
-											"        \"accept\": \"application/json\"\r",
-											"    },\r",
-											"    body: {\r",
-											"        mode: \"raw\",\r",
-											"        raw: JSON.stringify(pm.environment.get(\"novoUsuario\"))\r",
-											"    }\r",
-											"};\r",
-											"pm.sendRequest(cadastrarUsuario, function(err, res) {\r",
-											"    pm.expect(err).is.null;\r",
-											"    pm.environment.set(\"_id\", res.json()._id)\r",
-											"})\r",
-											"\r",
 											"pm.environment.set(\"novoNome\", pm.variables.replaceIn('{{randomFullname}}'));"
 										],
 										"type": "text/javascript",
@@ -439,11 +457,6 @@
 											"\r",
 											"pm.test(\"Verificar atualização de usuario com sucesso\", function() {\r",
 											"    pm.expect(jsonData.message).to.eql(\"Registro alterado com sucesso\")\r",
-											"})\r",
-											"\r",
-											"pm.sendRequest({\r",
-											"    url: pm.environment.get(\"base_url\") + \"/usuarios/\" + jsonData._id,\r",
-											"    method: \"DELETE\"\r",
 											"})"
 										],
 										"type": "text/javascript",
@@ -483,7 +496,7 @@
 							"response": []
 						},
 						{
-							"name": "Tentar atualizar usuario com email ja cadastrado",
+							"name": "Usuario email existente",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -496,23 +509,6 @@
 											"pm.sendRequest(buscarUsuario, function(err, res) {\r",
 											"    pm.expect(err).is.null;\r",
 											"    pm.environment.set(\"emailExistente\", res.json().usuarios[0].email)\r",
-											"})\r",
-											"\r",
-											"const cadastrarUsuario = {\r",
-											"    url: pm.environment.get(\"base_url\") + \"/usuarios\",\r",
-											"    method: \"POST\",\r",
-											"    header: {\r",
-											"        \"content-type\": \"application/json\",\r",
-											"        \"accept\": \"application/json\"\r",
-											"    },\r",
-											"    body: {\r",
-											"        mode: \"raw\",\r",
-											"        raw: JSON.stringify(pm.environment.get(\"novoUsuario\"))\r",
-											"    }\r",
-											"};\r",
-											"pm.sendRequest(cadastrarUsuario, function(err, res) {\r",
-											"    pm.expect(err).is.null;\r",
-											"    pm.environment.set(\"_id\", res.json()._id)\r",
 											"})"
 										],
 										"type": "text/javascript",
@@ -531,12 +527,7 @@
 											"\r",
 											"pm.test(\"Verifica mensagem do body\", function() {\r",
 											"    pm.expect(jsonData.message).to.eql(\"Este email já está sendo usado\")\r",
-											"})\r",
-											"\r",
-											"pm.sendRequest({\r",
-											"    url: pm.environment.get(\"base_url\") + \"/usuarios/\" + pm.environment.get(\"_id\"),\r",
-											"    method: \"DELETE\"\r",
-											"})"
+											"});"
 										],
 										"type": "text/javascript",
 										"packages": {}
@@ -573,6 +564,113 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Usuario com campos em branco",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Status code é 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verificar response body\", function() {\r",
+											"    pm.expect(jsonData.nome).to.eql(\"nome não pode ficar em branco\");\r",
+											"    pm.expect(jsonData.email).to.eql(\"email não pode ficar em branco\");\r",
+											"    pm.expect(jsonData.password).to.eql(\"password não pode ficar em branco\");\r",
+											"    pm.expect(jsonData.administrador).to.eql(\"administrador deve ser 'true' ou 'false'\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"nome\": \"\",\r\n  \"email\": \"\",\r\n  \"password\": \"\",\r\n  \"administrador\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/usuarios/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"usuarios",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "{{_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									"const cadastrarUsuario = {\r",
+									"    url: pm.environment.get(\"base_url\") + \"/usuarios\",\r",
+									"    method: \"POST\",\r",
+									"    header: {\r",
+									"        \"content-type\": \"application/json\",\r",
+									"        \"accept\": \"application/json\"\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: \"raw\",\r",
+									"        raw: JSON.stringify(pm.environment.get(\"novoUsuario\"))\r",
+									"    }\r",
+									"};\r",
+									"pm.sendRequest(cadastrarUsuario, function(err, res) {\r",
+									"    pm.expect(err).is.null;\r",
+									"    pm.environment.set(\"_id\", res.json()._id)\r",
+									"})\r",
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url: pm.environment.get(\"base_url\") + \"/usuarios/\" + pm.environment.get(\"_id\"),\r",
+									"    method: \"DELETE\"\r",
+									"})"
+								]
+							}
 						}
 					]
 				},
@@ -580,7 +678,7 @@
 					"name": "DELETE",
 					"item": [
 						{
-							"name": "Excluir usuario com sucesso",
+							"name": "Usuario com sucesso",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -643,7 +741,7 @@
 							"response": []
 						},
 						{
-							"name": "Tentar excluir usuario com ID inexistente",
+							"name": "Usuario com ID inexistente",
 							"event": [
 								{
 									"listen": "prerequest",
