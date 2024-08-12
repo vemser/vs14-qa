@@ -1,0 +1,81 @@
+{
+	"id": "303c670e-e5ff-400a-b22b-8dde8d921eee",
+	"name": "ServeRest Env",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "nome",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "email",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "password",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "administrador",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "novoUsuario",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "_id",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "idInvalido",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "novoNome",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "emailJaCadastrado",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "emailExistente",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "idInexistente",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2024-08-09T11:42:45.400Z",
+	"_postman_exported_using": "Postman/11.2.24"
+}
