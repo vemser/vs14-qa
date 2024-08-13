@@ -1,9 +1,12 @@
 package com.vemser.rest.tests.usuarios;
 
-import com.vemser.rest.pojo.UsuariosPOJO;
+import com.vemser.rest.model.usuarios.Usuarios;
+import com.vemser.rest.model.usuarios.UsuariosResponse;
 import io.restassured.http.ContentType;
 
 import net.datafaker.Faker;
+import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +14,8 @@ import java.util.Locale;
 import java.util.Random;
 
 import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 public class UsuariosTest {
 
@@ -50,9 +55,9 @@ public class UsuariosTest {
     }
 
     @Test
-    public void testBuscarUsuarioPorIDComSucesso() {
+    public void testBuscarUsuarioPorIDComHamcrest() {
 
-        String id = "dEV1fk1klY3pl28P";
+        String id = "SSfUpYxyOTgdjYCL";
 
         given()
                 .log().all()
@@ -61,7 +66,75 @@ public class UsuariosTest {
                 .get("/usuarios/{id}")
         .then()
                 .log().all()
+                .header("Content-Type", "application/json; charset=utf-8")
                 .statusCode(200)
+                .time(lessThan(3000L))
+                .body("_id", notNullValue())
+                .body("nome", equalTo("Pietra da Aldeia"))
+                .body("email", containsStringIgnoringCase("nathan"))
+        ;
+    }
+
+    @Test
+    public void testBuscarUsuarioPorIDComAssertions() {
+
+        String id = "SSfUpYxyOTgdjYCL";
+
+        UsuariosResponse response =
+        given()
+                .log().all()
+                .pathParam("id", id)
+        .when()
+                .get("/usuarios/{id}")
+        .then()
+                .log().all()
+                .statusCode(200)
+                .extract()
+                    .as(UsuariosResponse.class)
+        ;
+
+        Assertions.assertEquals("Pietra da Aldeia", response.getNome());
+        Assertions.assertEquals("nathan.barbosa@bol.com.br", response.getEmail());
+    }
+
+    @Test
+    public void testBuscarUsuarioPorIDComAssertAll() {
+
+        String id = "SSfUpYxyOTgdjYCL";
+
+        UsuariosResponse response =
+                given()
+                        .log().all()
+                        .pathParam("id", id)
+                .when()
+                        .get("/usuarios/{id}")
+                .then()
+                        .log().all()
+                        .statusCode(200)
+                        .extract()
+                            .as(UsuariosResponse.class)
+                ;
+
+        Assertions.assertAll("response",
+                () -> Assertions.assertEquals("Pietra da Aldeia", response.getNome()),
+                () -> Assertions.assertEquals("nathan.barbosa@bol.com.br", response.getEmail()),
+                () -> Assertions.assertTrue(response.getEmail().contains("nathan")),
+                () -> Assertions.assertNotNull(response.getPassword())
+        );
+    }
+
+    @Test
+    public void testDeveValidarContratoUsuariosPorIDComSucesso() {
+
+        String id = "SSfUpYxyOTgdjYCL";
+
+        given()
+                .pathParam("_id", id)
+        .when()
+                .get("/usuarios/{_id}")
+        .then()
+                .statusCode(HttpStatus.SC_OK)
+                .body(matchesJsonSchemaInClasspath("schemas/usuarios_por_id.json"))
         ;
     }
 
@@ -69,7 +142,7 @@ public class UsuariosTest {
     public void testCadastrarUsuarioComSucesso() {
 
         // massa de teste - body - payload
-        UsuariosPOJO usuario = new UsuariosPOJO();
+        Usuarios usuario = new Usuarios();
         usuario.setNome(faker.name().firstName() + " " + faker.name().lastName());
         usuario.setEmail(faker.internet().emailAddress());
         usuario.setPassword(faker.internet().password());
@@ -93,7 +166,7 @@ public class UsuariosTest {
         String id = "dEV1fk1klY3pl28P";
 
         // massa de teste - body - payload
-        UsuariosPOJO usuario = new UsuariosPOJO();
+        Usuarios usuario = new Usuarios();
         usuario.setNome(faker.name().firstName() + " " + faker.name().lastName());
         usuario.setEmail(faker.internet().emailAddress());
         usuario.setPassword(faker.internet().password());
